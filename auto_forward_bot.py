@@ -3,9 +3,10 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
 API_TOKEN = "7502578588:AAEucIcb_FUQOowBrnMyknsy5Mqc_KBZufY"
-ADMIN_ID = 6677489688,7043011107
+ADMIN_IDS = [6677489688, 6433016654, 7043011107]  # ✅ All admins listed here
 DATA_FILE = "channels.json"
 
+# ✅ Load channel data
 def load_data():
     try:
         with open(DATA_FILE, "r") as f:
@@ -13,13 +14,19 @@ def load_data():
     except:
         return {"source": None, "targets": []}
 
+# ✅ Save channel data
 def save_data(data):
     with open(DATA_FILE, "w") as f:
         json.dump(data, f)
 
-# 🔹 Commands for admin setup
+# ✅ Admin check function
+def is_admin(user_id):
+    return int(user_id) in ADMIN_IDS
+
+# 📦 Add source channel
 async def add_source(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("❌ Unauthorized.")
         return
     try:
         source_id = int(context.args[0])
@@ -30,8 +37,10 @@ async def add_source(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         await update.message.reply_text("⚠️ Usage: /addsource <chat_id>")
 
+# 🎯 Add target channel
 async def add_target(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("❌ Unauthorized.")
         return
     try:
         target_id = int(context.args[0])
@@ -43,8 +52,10 @@ async def add_target(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         await update.message.reply_text("⚠️ Usage: /addtarget <chat_id>")
 
+# ❌ Remove target
 async def remove_target(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("❌ Unauthorized.")
         return
     try:
         target_id = int(context.args[0])
@@ -58,13 +69,15 @@ async def remove_target(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         await update.message.reply_text("⚠️ Usage: /removetarget <chat_id>")
 
+# 📋 Show list
 async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("❌ Unauthorized.")
         return
     data = load_data()
     await update.message.reply_text(f"📡 Source: {data['source']}\n🎯 Targets: {data['targets']}")
 
-# 🔁 Actual Forwarding
+# 🔁 Forwarder
 async def forward_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = load_data()
     source_id = data["source"]
@@ -90,7 +103,7 @@ async def forward_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             print(f"❌ Error forwarding to {tgt}: {e}")
 
-# 🧠 Main function
+# 🔁 Main
 def main():
     app = ApplicationBuilder().token(API_TOKEN).build()
 
