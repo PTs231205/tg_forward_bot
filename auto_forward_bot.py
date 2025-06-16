@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
 API_TOKEN = "7502578588:AAEucIcb_FUQOowBrnMyknsy5Mqc_KBZufY"
-ADMIN_ID = 6677489688,7043011107
+ADMIN_ID = 6677489688
 DATA_FILE = "channels.json"
 
 def load_data():
